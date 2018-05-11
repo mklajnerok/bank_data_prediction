@@ -2,14 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="800eeecc-e02e-42d3-9cb5-90d818aa3215" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/data_prep_mine.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/age_hours_multi_scatter.png" afterPath="$PROJECT_DIR$/age_hours_multi_scatter.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/id_age_scatter.png" afterPath="$PROJECT_DIR$/id_age_scatter.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/id_hours_scatter.png" afterPath="$PROJECT_DIR$/id_hours_scatter.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/sex_hours_multi_box.png" afterPath="$PROJECT_DIR$/sex_hours_multi_box.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/sex_incomegroup_multi_bar.png" afterPath="$PROJECT_DIR$/sex_incomegroup_multi_bar.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/sex_incomegroup_multi_bar_perc.png" afterPath="$PROJECT_DIR$/sex_incomegroup_multi_bar_perc.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/workclass_pivot.png" afterPath="$PROJECT_DIR$/workclass_pivot.png" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/data_prep_mine.py" afterPath="$PROJECT_DIR$/data_prep_mine.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -24,8 +19,8 @@
       <file leaf-file-name="data_prep.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/data_prep.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="438">
-              <caret line="38" column="24" lean-forward="true" selection-start-line="38" selection-start-column="24" selection-end-line="38" selection-end-column="24" />
+            <state relative-caret-position="262">
+              <caret line="119" column="63" lean-forward="true" selection-start-line="114" selection-start-column="0" selection-end-line="119" selection-end-column="63" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -36,8 +31,8 @@
       <file leaf-file-name="data_prep_mine.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/data_prep_mine.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="219">
-              <caret line="136" column="27" lean-forward="true" selection-start-line="136" selection-start-column="27" selection-end-line="136" selection-end-column="27" />
+            <state relative-caret-position="256">
+              <caret line="254" column="26" lean-forward="false" selection-start-line="254" selection-start-column="26" selection-end-line="254" selection-end-column="26" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -221,8 +216,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/data_prep.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="438">
-          <caret line="38" column="24" lean-forward="true" selection-start-line="38" selection-start-column="24" selection-end-line="38" selection-end-column="24" />
+        <state relative-caret-position="262">
+          <caret line="119" column="63" lean-forward="true" selection-start-line="114" selection-start-column="0" selection-end-line="119" selection-end-column="63" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
@@ -231,8 +226,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/data_prep_mine.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="219">
-          <caret line="136" column="27" lean-forward="true" selection-start-line="136" selection-start-column="27" selection-end-line="136" selection-end-column="27" />
+        <state relative-caret-position="256">
+          <caret line="254" column="26" lean-forward="false" selection-start-line="254" selection-start-column="26" selection-end-line="254" selection-end-column="26" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
