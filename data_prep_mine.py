@@ -195,55 +195,103 @@ plt.savefig('hours_scatter.png')
 
 # NaNs in Workclass and Occupation
 train_clean = train2.copy()
+test_clean = test2.copy()
+
 train_clean['Workclass'] = train_clean['Workclass'].replace(np.nan, 'Missing', regex=True)
 train_clean['Occupation'] = train_clean['Occupation'].replace(np.nan, 'Missing', regex=True)
 
 # Age - bins
-age_cut_points = [0, 30, 45, 60, 100]
-age_labels = ['Young', 'Middle Lower', 'Middle Upper', 'Senior']
 
-train_clean['Age_categories'] = pd.cut(train_clean['Age'], age_cut_points, labels=age_labels)
-test2['Age_categories'] = pd.cut(test2['Age'], age_cut_points, labels=age_labels)
+def put_into_bins(df_train, df_test, variable_label, cut_points, labels):
+    """
+    Takes data frames with train and test values and put values into bins for a chosen continuous variable
+    :param df_train: data frame with train data
+    :param df_test: data frame with test data
+    :param variable_label: name of variable with values to put into bins
+    :param cut_points: list of values to determine bins' borders
+    :param labels: list of bin's labels
+    :return: two data frames with new columns added
+    """
+    new_label = variable_label+'_cat'
+    df_train[new_label] = pd.cut(df_train[variable_label], cut_points, labels=labels)
+    df_test[new_label] = pd.cut(df_test[variable_label], cut_points, labels=labels)
 
-age_pivot = train_clean.pivot_table(index='Age_categories', values='Income.Group')
+put_into_bins(train_clean, test_clean, 'Age', [0, 30, 45, 60, 100], ['Young', 'Middle Lower', 'Middle Upper', 'Senior'])
+
+age_pivot = train_clean.pivot_table(index='Age_cat', values='Income.Group')
 age_pivot.plot.bar(figsize=(10, 12))
 plt.savefig('age_pivot.png')
 
 
 # Workclass - new category (Private, Self-emp, Gov, No-Pay)
-workclass_cat_dict = {'Private':'private','Missing':'missing','Self-emp-not-inc':'self_employ', 'Self-emp-inc':'self_employ',
-                      'Federal-gov':'gov', 'State-gov':'gov','Local-gov':'gov', 'Never-worked':'no_pay', 'Without-pay':'no_pay'}
-train_clean['Workclass'] = train_clean['Workclass'].map(workclass_cat_dict)
-test2['Workclass'] = test2['Workclass'].map(workclass_cat_dict)
+
+def group_with_dict(df_train, df_test, variable_label, cat_dict):
+    """
+    Takes data frames with train and test values and changes categories' names with those from a dictionary
+    for a chosen variable
+    :param df_train: data frame with train data
+    :param df_test: data frame with test data
+    :param variable_label: name of variable with categories to rename
+    :param cat_dict: dictionary with new ategories names
+    :return: two data frames with grouped categories
+    """
+    df_train[variable_label] = df_train[variable_label].map(cat_dict)
+    df_test[variable_label] = df_test[variable_label].map(cat_dict)
+
+group_with_dict(train_clean, test_clean, 'Workclass', {'Private':'private','Missing':'missing',
+                                                       'Self-emp-not-inc':'self_employ', 'Self-emp-inc':'self_employ',
+                                                       'Federal-gov':'gov', 'State-gov':'gov',
+                                                       'Local-gov':'gov', 'Never-worked':'no_pay',
+                                                       'Without-pay':'no_pay'})
 
 # Education - new categories
-edu_cat_dict = {'HS-grad':'college', 'Some-college':'college', 'Bachelors':'degree', 'Masters':'degree',
-                'Assoc-voc':'docs', '11th':'college', 'Assoc-acdm':'docs', '10th':'college', '7th-8th':'secondary',
-                'Prof-school': 'docs', '9th':'secondary', '12th':'college', 'Doctorate':'docs', '5th-6th':'primary',
-                '1st-4th':'primary', 'Preschool':'primary'}
-train_clean['Education'] = train_clean['Education'].map(edu_cat_dict)
-test2['Education'] = test2['Education'].map(edu_cat_dict)
+group_with_dict(train_clean, test_clean, 'Education', {'HS-grad':'college', 'Some-college':'college',
+                                                       'Bachelors':'degree', 'Masters':'degree', 'Assoc-voc':'docs',
+                                                       '11th':'college', 'Assoc-acdm':'docs', '10th':'college',
+                                                       '7th-8th':'secondary', 'Prof-school':'docs', '9th':'secondary',
+                                                       '12th':'college', 'Doctorate':'docs', '5th-6th':'primary',
+                                                       '1st-4th':'primary', 'Preschool':'primary'})
+
 
 # Marital.Status - new categories:
-mstatus_cat_dict = {'Married-civ-spouse':'family', 'Never-married':'single', 'Divorced':'single', 'Separated':'single',
-                  'Widowed':'single', 'Married-spouse-absent':'single', 'Married-AF-spouse':'family'}
-train_clean['Marital.Status'] = train_clean['Marital.Status'].map(mstatus_cat_dict)
-test2['Marital.Status'] = test2['Marital.Status'].map(mstatus_cat_dict)
+group_with_dict(train_clean, test_clean, 'Marital.Status', {'Married-civ-spouse':'family', 'Never-married':'single',
+                                                            'Divorced':'single', 'Separated':'single',
+                                                            'Widowed':'single', 'Married-spouse-absent':'single',
+                                                            'Married-AF-spouse':'family'})
 
 
 # Occupation - put all categories under 5% into one group
 
+def group_minors(df_train, df_test, variable_label, threshold):
+    """
+    Takes data frames with train and test values and changes categories' names with frequency below given value
+    to 'others' for a chosen variable
+    :param df_train: data frame with train data
+    :param df_test: data frame with test data
+    :param variable_label: name of variable with categories to rename
+    :param threshold: frequency value below which all categories will be renamed
+    :return: two data frames with combined values in column 'variable_label'
+    """
+    cat_freq = df_train[variable_label].value_counts()/df_train.shape[0]
+    cat_to_combine_index = cat_freq.loc[cat_freq.values < threshold].index
+    for category in cat_to_combine_index:
+        df_train[variable_label].replace({category:'others'}, inplace=True)
+        df_test[variable_label].replace({category:'others'}, inplace=True)
 
+group_minors(train_clean, test_clean, 'Occupation', 0.05)
 
 
 # Race - Put the last 3 in one group 'Other'
-race_cat_dict = {'White':'white', 'Black':'black', 'Asian-Pac-Islander':'other', 'Amer-Indian-Eskimo':'other', 'Other':'other'}
-train_clean['Race'] = train_clean['Race'].map(race_cat_dict)
-test2['Race'] = test2['Race'].map(race_cat_dict)
+group_with_dict(train_clean, test_clean, 'Race', {'White':'white', 'Black':'black', 'Asian-Pac-Islander':'other',
+                                                  'Amer-Indian-Eskimo':'other', 'Other':'other'})
 
 
-# Hours.Per.Week - Most people work around 40 hours.
-                #Make bins: below 40, equals 40 and above 40
+# Hours.Per.Week - Most people work around 40 hours.Make bins: below 40, equals 40 and above 40
+put_into_bins(train_clean, test_clean, 'Hours.Per.Week', [0, 39, 40, 100], ['below_mode', 'equals_mode', 'above_mode'])
+
+hours_pivot = train_clean.pivot_table(index='Hours.Per.Week_cat', values='Income.Group')
+hours_pivot.plot.bar(figsize=(10, 12))
+plt.savefig('hours_pivot.png')
 
 
 # Native.Country - Try making two categories: USA and Others
