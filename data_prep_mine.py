@@ -1,8 +1,22 @@
 import pandas as pd
+import numpy as np
+
 import matplotlib.pyplot as plt
 import matplotlib
+
 matplotlib.style.use('ggplot')
-import numpy as np
+
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import SVC, LinearSVC
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import GradientBoostingClassifier
+
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import cross_val_score
 
 
 ########## Load data ###
@@ -13,7 +27,6 @@ test2 = pd.read_csv('test_data_bank.csv')
 bool_income_d = {'<=50K': True, '>50K': False}
 train2['Income.Group'] = train2['Income.Group'].map(bool_income_d)
 
-
 ########## 4. Data Exploration ###
 
 train2.columns
@@ -22,10 +35,10 @@ train2.info()
 train2.describe()
 train2.describe(include=['O'])
 
-
 ##### AGE #####
 train2['Age'].plot.hist()
 plt.savefig('age_simple_hist.png')
+
 
 def plot_hist_for_continuous(df_train, group_names, predictor_label, target_label, colors):
     """
@@ -42,17 +55,20 @@ def plot_hist_for_continuous(df_train, group_names, predictor_label, target_labe
     zeroes[predictor_label].plot.hist(alpha=0.5, color=colors[0])
     ones[predictor_label].plot.hist(alpha=0.5, color=colors[1])
     plt.legend(group_names)
-    plt.savefig(predictor_label+'_hist.png')
+    plt.savefig(predictor_label + '_hist.png')
+
 
 plot_hist_for_continuous(train2, ['above 50k', 'below 50k'], 'Age', 'Income.Group', ['green', 'orange'])
 
 ##### WORKCLASS #####
-train2['Workclass'].value_counts()/train2.shape[0]
+train2['Workclass'].value_counts() / train2.shape[0]
+
 
 def plot_pivot_bar(df_train, predictor_label, target_label):
     predictor_pivot = df_train.pivot_table(index=predictor_label, values=target_label)
     predictor_pivot.plot.bar(figsize=(10, 12))
-    plt.savefig(predictor_label+'_pivot.png')
+    plt.savefig(predictor_label + '_pivot.png')
+
 
 plot_pivot_bar(train2, 'Workclass', 'Income.Group')
 
@@ -71,27 +87,27 @@ plt.savefig('workclass_incomegroup_cross_bar_perc.png')
 """
 
 ##### EDUCATION #####
-train2['Education'].value_counts()/train2.shape[0]
+train2['Education'].value_counts() / train2.shape[0]
 plot_pivot_bar(train2, 'Education', 'Income.Group')
 
 ##### MARTIAL STATUS #####
-train2['Marital.Status'].value_counts()/train2.shape[0]
+train2['Marital.Status'].value_counts() / train2.shape[0]
 plot_pivot_bar(train2, 'Marital.Status', 'Income.Group')
 
 ##### OCCUPATION #####
-train2['Occupation'].value_counts()/train2.shape[0]
+train2['Occupation'].value_counts() / train2.shape[0]
 plot_pivot_bar(train2, 'Occupation', 'Income.Group')
 
 ##### RELATIONSHIP #####
-train2['Relationship'].value_counts()/train2.shape[0]
+train2['Relationship'].value_counts() / train2.shape[0]
 plot_pivot_bar(train2, 'Relationship', 'Income.Group')
 
 ##### RACE #####
-train2['Race'].value_counts()/train2.shape[0]
+train2['Race'].value_counts() / train2.shape[0]
 plot_pivot_bar(train2, 'Race', 'Income.Group')
 
 ##### SEX #####
-train2['Sex'].value_counts()/train2.shape[0]
+train2['Sex'].value_counts() / train2.shape[0]
 plot_pivot_bar(train2, 'Sex', 'Income.Group')
 
 ##### HOURS PER WEEK #####
@@ -101,7 +117,7 @@ plt.savefig('hours_simple_hist.png')
 plot_hist_for_continuous(train2, ['above 50k', 'below 50k'], 'Hours.Per.Week', 'Income.Group', ['green', 'orange'])
 
 ##### NATIVE COUNTRY #####
-train2['Native.Country'].value_counts()/train2.shape[0]
+train2['Native.Country'].value_counts() / train2.shape[0]
 plot_pivot_bar(train2, 'Native.Country', 'Income.Group')
 
 
@@ -115,11 +131,11 @@ def compare_nans(df_train, variable_labels):
     """
     l0 = list(np.where(df_train[variable_labels[0]].isnull())[0])
     l1 = list(np.where(df_train[variable_labels[1]].isnull())[0])
-    diff = list(set(l0)-set(l1))
+    diff = list(set(l0) - set(l1))
     return diff
 
-compare_nans(train2, ['Workclass', 'Occupation'])
 
+compare_nans(train2, ['Workclass', 'Occupation'])
 
 """
 Comment: 
@@ -166,10 +182,10 @@ plt.savefig('age_scatter.png')
 train2.plot.scatter('ID', 'Hours.Per.Week')
 plt.savefig('hours_scatter.png')
 
-
 ########## 4. Data Transformation ###
 train_clean = train2.copy()
 test_clean = test2.copy()
+
 
 # NaNs in Workclass, Occupation, Native.Country
 
@@ -186,6 +202,7 @@ def replace_nans(df_train, df_test, variable_labels, new_value):
         df_train[var] = df_train[var].replace(np.nan, new_value, regex=True)
         df_test[var] = df_test[var].replace(np.nan, new_value, regex=True)
 
+
 replace_nans(train_clean, test_clean, ['Workclass', 'Occupation', 'Native.Country'], 'Missing')
 
 
@@ -201,9 +218,10 @@ def put_into_bins(df_train, df_test, variable_label, cut_points, labels):
     :param labels: list of bin's labels
     :return: two data frames with new columns added
     """
-    new_label = variable_label+'_cat'
+    new_label = variable_label + '_cat'
     df_train[new_label] = pd.cut(df_train[variable_label], cut_points, labels=labels)
     df_test[new_label] = pd.cut(df_test[variable_label], cut_points, labels=labels)
+
 
 put_into_bins(train_clean, test_clean, 'Age', [0, 30, 45, 60, 100], ['Young', 'Middle Lower', 'Middle Upper', 'Senior'])
 plot_pivot_bar(train_clean, 'Age_cat', 'Income.Group')
@@ -224,28 +242,31 @@ def group_with_dict(df_train, df_test, variable_label, cat_dict):
     df_train[variable_label] = df_train[variable_label].map(cat_dict)
     df_test[variable_label] = df_test[variable_label].map(cat_dict)
 
-group_with_dict(train_clean, test_clean, 'Workclass', {'Private':'private','Missing':'missing',
-                                                       'Self-emp-not-inc':'self_employ', 'Self-emp-inc':'self_employ',
-                                                       'Federal-gov':'gov', 'State-gov':'gov',
-                                                       'Local-gov':'gov', 'Never-worked':'no_pay',
-                                                       'Without-pay':'no_pay'})
+
+group_with_dict(train_clean, test_clean, 'Workclass', {'Private': 'private', 'Missing': 'missing',
+                                                       'Self-emp-not-inc': 'self_employ', 'Self-emp-inc': 'self_employ',
+                                                       'Federal-gov': 'gov', 'State-gov': 'gov',
+                                                       'Local-gov': 'gov', 'Never-worked': 'no_pay',
+                                                       'Without-pay': 'no_pay'})
 plot_pivot_bar(train_clean, 'Workclass', 'Income.Group')
 
 # Education - new categories
-group_with_dict(train_clean, test_clean, 'Education', {'HS-grad':'college', 'Some-college':'college',
-                                                       'Bachelors':'degree', 'Masters':'degree', 'Assoc-voc':'docs',
-                                                       '11th':'college', 'Assoc-acdm':'docs', '10th':'college',
-                                                       '7th-8th':'secondary', 'Prof-school':'docs', '9th':'secondary',
-                                                       '12th':'college', 'Doctorate':'docs', '5th-6th':'primary',
-                                                       '1st-4th':'primary', 'Preschool':'primary'})
+group_with_dict(train_clean, test_clean, 'Education', {'HS-grad': 'college', 'Some-college': 'college',
+                                                       'Bachelors': 'degree', 'Masters': 'degree', 'Assoc-voc': 'docs',
+                                                       '11th': 'college', 'Assoc-acdm': 'docs', '10th': 'college',
+                                                       '7th-8th': 'secondary', 'Prof-school': 'docs',
+                                                       '9th': 'secondary',
+                                                       '12th': 'college', 'Doctorate': 'docs', '5th-6th': 'primary',
+                                                       '1st-4th': 'primary', 'Preschool': 'primary'})
 plot_pivot_bar(train_clean, 'Education', 'Income.Group')
 
 # Marital.Status - new categories:
-group_with_dict(train_clean, test_clean, 'Marital.Status', {'Married-civ-spouse':'family', 'Never-married':'single',
-                                                            'Divorced':'single', 'Separated':'single',
-                                                            'Widowed':'single', 'Married-spouse-absent':'single',
-                                                            'Married-AF-spouse':'family'})
+group_with_dict(train_clean, test_clean, 'Marital.Status', {'Married-civ-spouse': 'family', 'Never-married': 'single',
+                                                            'Divorced': 'single', 'Separated': 'single',
+                                                            'Widowed': 'single', 'Married-spouse-absent': 'single',
+                                                            'Married-AF-spouse': 'family'})
 plot_pivot_bar(train_clean, 'Marital.Status', 'Income.Group')
+
 
 # Occupation - put all categories under 5% into one group
 
@@ -259,18 +280,19 @@ def group_minors(df_train, df_test, variable_label, threshold):
     :param threshold: frequency value below which all categories will be renamed
     :return: two data frames with combined values in column 'variable_label'
     """
-    cat_freq = df_train[variable_label].value_counts()/df_train.shape[0]
+    cat_freq = df_train[variable_label].value_counts() / df_train.shape[0]
     cat_to_combine_index = cat_freq.loc[cat_freq.values < threshold].index
     for category in cat_to_combine_index:
-        df_train[variable_label].replace({category:'others'}, inplace=True)
-        df_test[variable_label].replace({category:'others'}, inplace=True)
+        df_train[variable_label].replace({category: 'others'}, inplace=True)
+        df_test[variable_label].replace({category: 'others'}, inplace=True)
+
 
 group_minors(train_clean, test_clean, 'Occupation', 0.05)
 plot_pivot_bar(train_clean, 'Occupation', 'Income.Group')
 
 # Race - Put the last 3 in one group 'Other'
-group_with_dict(train_clean, test_clean, 'Race', {'White':'white', 'Black':'black', 'Asian-Pac-Islander':'other',
-                                                  'Amer-Indian-Eskimo':'other', 'Other':'other'})
+group_with_dict(train_clean, test_clean, 'Race', {'White': 'white', 'Black': 'black', 'Asian-Pac-Islander': 'other',
+                                                  'Amer-Indian-Eskimo': 'other', 'Other': 'other'})
 plot_pivot_bar(train_clean, 'Race', 'Income.Group')
 
 # Hours.Per.Week - Most people work around 40 hours.Make bins: below 40, equals 40 and above 40
@@ -296,6 +318,7 @@ def create_dummies(df, variable_label):
     dummies = pd.get_dummies(df[variable_label], prefix=variable_label)
     return pd.concat([df, dummies], axis=1)
 
+
 def apply_dummies(df_train, df_test, variable_labels):
     """
     Takes data frames with train and test values and applies create_dummies function to given columns
@@ -309,10 +332,82 @@ def apply_dummies(df_train, df_test, variable_labels):
         df_test = create_dummies(df_test, variable)
     return df_train, df_test
 
-train_clean, test_clean = apply_dummies(train_clean, test_clean, ['Workclass', 'Education', 'Marital.Status', 'Occupation', 'Race', 'Sex',
-                                        'Age_cat', 'Hours.Per.Week_cat'])
 
+train_clean, test_clean = apply_dummies(train_clean, test_clean, ['Workclass', 'Education', 'Marital.Status',
+                                                                  'Occupation', 'Race', 'Sex', 'Age_cat',
+                                                                  'Hours.Per.Week_cat'])
 
+########## 5. Predictive Modeling ###
 
+# train and test split
+holdout = test_clean
+columns_for_modeling = list(set(list(train_clean.columns)) - {'ID', 'Age', 'Workclass', 'Education', 'Marital.Status',
+                                                              'Occupation', 'Relationship', 'Race', 'Sex',
+                                                              'Hours.Per.Week',
+                                                              'Native.Country', 'Income.Group', 'Age_cat',
+                                                              'Hours.Per.Week_cat'})
+all_x = train_clean[columns_for_modeling]
+all_y = train_clean['Income.Group']
+train_x, test_x, train_y, test_y = train_test_split(all_x, all_y, test_size=0.2, random_state=0)
 
+# modeling
+# Logistic Regression
+log_reg = LogisticRegression()
+log_reg.fit(train_x, train_y)
+acc_log_reg = round(log_reg.score(train_x, train_y)*100, 2)
 
+print(acc_log)
+print('Coefficient: \n', log_reg.coef_)
+print('Intercept: \n', log_reg.intercept_)
+y_pred = log_reg.predict(test_x)
+
+# Decision Tree
+dec_tree = DecisionTreeClassifier()
+dec_tree.fit(train_x, train_y)
+acc_dec_tree = round(dec_tree.score(train_x, train_y)*100, 2)
+
+# Support Vector Machine (SVM)
+svc = SVC()
+svc.fit(train_x, train_y)
+acc_svc = round(svc.score(train_x, train_y)*100, 2)
+
+# Linear SVC
+lin_svc = LinearSVC()
+lin_svc.fit(train_x, train_y)
+acc_lin_svc = round(lin_svc.score(train_x, train_y)*100, 2)
+
+# Naive Bayes
+gauss = GaussianNB()
+gauss.fit(train_x, train_y)
+acc_gauss = round(gauss.score(train_x, train_y)*100, 2)
+
+# kNN
+knn = KNeighborsClassifier(n_neighbors=3)
+knn.fit(train_x, train_y)
+acc_knn = round(knn.score(train_x, train_y)*100, 2)
+
+# Random Forest
+rand_forest = RandomForestClassifier(n_estimators=100)
+rand_forest.fit(train_x, train_y)
+acc_rand_forest = round(rand_forest.score(train_x, train_y)*100, 2)
+
+# Gradient Boosting Algorithms
+gbm = GradientBoostingClassifier(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0)
+gbm.fit(train_x, train_y)
+acc_gbm = round(gbm.score(train_x, train_y)*100, 2)
+
+# Cross-Validation
+names = ['Logistic Regression', 'Decision Tree', 'Support Vector Machine', 'Linear SVC', 'Naive Bayes', 'kNN',
+         'Random Forest', 'Gradient Boosting Algorithm']
+estimators = [log_reg, dec_tree, svc, lin_svc, gauss, knn, rand_forest, gbm]
+scores = [acc_log_reg, acc_dec_tree, acc_svc, acc_lin_svc, acc_gauss, acc_knn, acc_rand_forest, acc_gbm]
+models_summary = pd.DataFrame({'Name':names, 'Score':scores})
+
+test_list = []
+for est in estimators:
+    accuracy = cross_val_score(est, all_x, all_y, cv=10).mean()
+    test_list.append(accuracy)
+print(test_list)
+
+models_summary.loc[:, 'Accuracy'] = pd.Series(test_list, index=models_summary.index)
+models_summary.sort_values(by='Accuracy', ascending=False)

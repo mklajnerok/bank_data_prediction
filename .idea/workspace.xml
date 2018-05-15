@@ -2,15 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="800eeecc-e02e-42d3-9cb5-90d818aa3215" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/workclass_incomegroup_cross_bar.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/workclass_incomegroup_cross_bar_perc.png" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Marital.Status_pivot.png" afterPath="$PROJECT_DIR$/Marital.Status_pivot.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Native.Country_pivot.png" afterPath="$PROJECT_DIR$/Native.Country_pivot.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/education_pivot.png" afterPath="$PROJECT_DIR$/education_pivot.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/occupation_pivot.png" afterPath="$PROJECT_DIR$/occupation_pivot.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/race_pivot.png" afterPath="$PROJECT_DIR$/race_pivot.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/workclass_pivot.png" afterPath="$PROJECT_DIR$/workclass_pivot.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/data_prep_mine.py" afterPath="$PROJECT_DIR$/data_prep_mine.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -38,8 +29,8 @@
       <file leaf-file-name="data_prep_mine.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/data_prep_mine.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="342">
-              <caret line="315" column="0" lean-forward="true" selection-start-line="315" selection-start-column="0" selection-end-line="315" selection-end-column="0" />
+            <state relative-caret-position="290">
+              <caret line="412" column="18" lean-forward="true" selection-start-line="412" selection-start-column="18" selection-end-line="412" selection-end-column="18" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -233,8 +224,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/data_prep_mine.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="342">
-          <caret line="315" column="0" lean-forward="true" selection-start-line="315" selection-start-column="0" selection-end-line="315" selection-end-column="0" />
+        <state relative-caret-position="290">
+          <caret line="412" column="18" lean-forward="true" selection-start-line="412" selection-start-column="18" selection-end-line="412" selection-end-column="18" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
