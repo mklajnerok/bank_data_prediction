@@ -11,7 +11,7 @@ test2 = pd.read_csv('test_data_bank.csv')
 
 # convert Income.Group to be boolean
 bool_income_d = {'<=50K': True, '>50K': False}
-train2['Income.Group'] = train2['Income.Group'].map(bool_income_dd)
+train2['Income.Group'] = train2['Income.Group'].map(bool_income_d)
 
 
 ########## 4. Data Exploration ###
@@ -46,7 +46,6 @@ def plot_hist_for_continuous(df_train, group_names, predictor_label, target_labe
 
 plot_hist_for_continuous(train2, ['above 50k', 'below 50k'], 'Age', 'Income.Group', ['green', 'orange'])
 
-
 ##### WORKCLASS #####
 train2['Workclass'].value_counts()/train2.shape[0]
 
@@ -57,8 +56,8 @@ def plot_pivot_bar(df_train, predictor_label, target_label):
 
 plot_pivot_bar(train2, 'Workclass', 'Income.Group')
 
-# For the same effect as pivot
-# cross-tab and plot (add percent)
+"""
+# For the same effect as pivot - cross-tab and plot (add percent)
 workclass_ct = pd.crosstab(train2['Workclass'], train2['Income.Group'], margins=True)
 workclass_ct.iloc[:-1,:-1].plot.bar(figsize=(10, 12), stacked=True, color=['green', 'orange'], grid=False)
 plt.savefig('workclass_incomegroup_cross_bar.png')
@@ -69,37 +68,31 @@ def percConvert(ser):
 workclass_ct_perc = workclass_ct.apply(percConvert, axis=1)
 workclass_ct_perc.iloc[:-1,:-1].plot.bar(figsize=(10, 12), stacked=True, color=['blue', 'pink'], grid=False)
 plt.savefig('workclass_incomegroup_cross_bar_perc.png')
-
+"""
 
 ##### EDUCATION #####
 train2['Education'].value_counts()/train2.shape[0]
 plot_pivot_bar(train2, 'Education', 'Income.Group')
 
-
 ##### MARTIAL STATUS #####
 train2['Marital.Status'].value_counts()/train2.shape[0]
 plot_pivot_bar(train2, 'Marital.Status', 'Income.Group')
-
 
 ##### OCCUPATION #####
 train2['Occupation'].value_counts()/train2.shape[0]
 plot_pivot_bar(train2, 'Occupation', 'Income.Group')
 
-
 ##### RELATIONSHIP #####
 train2['Relationship'].value_counts()/train2.shape[0]
 plot_pivot_bar(train2, 'Relationship', 'Income.Group')
-
 
 ##### RACE #####
 train2['Race'].value_counts()/train2.shape[0]
 plot_pivot_bar(train2, 'Race', 'Income.Group')
 
-
 ##### SEX #####
 train2['Sex'].value_counts()/train2.shape[0]
 plot_pivot_bar(train2, 'Sex', 'Income.Group')
-
 
 ##### HOURS PER WEEK #####
 train2['Hours.Per.Week'].plot.hist()
@@ -107,19 +100,25 @@ plt.savefig('hours_simple_hist.png')
 
 plot_hist_for_continuous(train2, ['above 50k', 'below 50k'], 'Hours.Per.Week', 'Income.Group', ['green', 'orange'])
 
-
 ##### NATIVE COUNTRY #####
 train2['Native.Country'].value_counts()/train2.shape[0]
 plot_pivot_bar(train2, 'Native.Country', 'Income.Group')
 
 
 ##### HANDLING NANS #####
-work_nans = list(np.where(train2['Workclass'].isnull())[0])
-occ_nans = list(np.where(train2['Occupation'].isnull())[0])
+def compare_nans(df_train, variable_labels):
+    """
+    Takes two variables from df and checks if the nans relate to the same records in both variables
+    :param df_train: data frame with train data
+    :param variable_labels: list of variables labels which have NaN values
+    :return: a list with indexes of NaN which are in one variable, but not in the other
+    """
+    l0 = list(np.where(df_train[variable_labels[0]].isnull())[0])
+    l1 = list(np.where(df_train[variable_labels[1]].isnull())[0])
+    diff = list(set(l0)-set(l1))
+    return diff
 
-diff = lambda l1,l2: [x for x in l1 if x not in l2]
-diff(work_nans, occ_nans)
-list(set(work_nans)-set(occ_nans))
+compare_nans(train2, ['Workclass', 'Occupation'])
 
 
 """
@@ -179,7 +178,7 @@ def replace_nans(df_train, df_test, variable_labels, new_value):
     Takes data frames with train and test values and replaces NaNs with new values
     :param df_train: data frame with train data
     :param df_test: data frame with test data
-    :param variable_label: list of variables labels which have NaN values
+    :param variable_labels: list of variables labels which have NaN values
     :param new_value: new string values for NaN
     :return: two data frames with replaced NaNs
     """
@@ -230,6 +229,7 @@ group_with_dict(train_clean, test_clean, 'Workclass', {'Private':'private','Miss
                                                        'Federal-gov':'gov', 'State-gov':'gov',
                                                        'Local-gov':'gov', 'Never-worked':'no_pay',
                                                        'Without-pay':'no_pay'})
+plot_pivot_bar(train_clean, 'Workclass', 'Income.Group')
 
 # Education - new categories
 group_with_dict(train_clean, test_clean, 'Education', {'HS-grad':'college', 'Some-college':'college',
@@ -238,14 +238,14 @@ group_with_dict(train_clean, test_clean, 'Education', {'HS-grad':'college', 'Som
                                                        '7th-8th':'secondary', 'Prof-school':'docs', '9th':'secondary',
                                                        '12th':'college', 'Doctorate':'docs', '5th-6th':'primary',
                                                        '1st-4th':'primary', 'Preschool':'primary'})
-
+plot_pivot_bar(train_clean, 'Education', 'Income.Group')
 
 # Marital.Status - new categories:
 group_with_dict(train_clean, test_clean, 'Marital.Status', {'Married-civ-spouse':'family', 'Never-married':'single',
                                                             'Divorced':'single', 'Separated':'single',
                                                             'Widowed':'single', 'Married-spouse-absent':'single',
                                                             'Married-AF-spouse':'family'})
-
+plot_pivot_bar(train_clean, 'Marital.Status', 'Income.Group')
 
 # Occupation - put all categories under 5% into one group
 
@@ -266,22 +266,53 @@ def group_minors(df_train, df_test, variable_label, threshold):
         df_test[variable_label].replace({category:'others'}, inplace=True)
 
 group_minors(train_clean, test_clean, 'Occupation', 0.05)
-
+plot_pivot_bar(train_clean, 'Occupation', 'Income.Group')
 
 # Race - Put the last 3 in one group 'Other'
 group_with_dict(train_clean, test_clean, 'Race', {'White':'white', 'Black':'black', 'Asian-Pac-Islander':'other',
                                                   'Amer-Indian-Eskimo':'other', 'Other':'other'})
-
+plot_pivot_bar(train_clean, 'Race', 'Income.Group')
 
 # Hours.Per.Week - Most people work around 40 hours.Make bins: below 40, equals 40 and above 40
 put_into_bins(train_clean, test_clean, 'Hours.Per.Week', [0, 39, 40, 100], ['below_mode', 'equals_mode', 'above_mode'])
 plot_pivot_bar(train_clean, 'Hours.Per.Week_cat', 'Income.Group')
 
-
 # Native.Country - Try making two categories: USA and Others
 group_minors(train_clean, test_clean, 'Native.Country', 0.02)
-
+plot_pivot_bar(train_clean, 'Native.Country', 'Income.Group')
 
 
 ########## 5. Predictive Modeling ###
+
+# create dummies for categorical values
+
+def create_dummies(df, variable_label):
+    """
+    Takes a df column with variable_label and creates dummies for it
+    :param df: data frame name
+    :param variable_label: name of column
+    :return: df with added columns for dummies
+    """
+    dummies = pd.get_dummies(df[variable_label], prefix=variable_label)
+    return pd.concat([df, dummies], axis=1)
+
+def apply_dummies(df_train, df_test, variable_labels):
+    """
+    Takes data frames with train and test values and applies create_dummies function to given columns
+    :param df_train: data frame with train data
+    :param df_test: data frame with test data
+    :param variable_labels: list of variables labels which need dummies columns
+    :return:
+    """
+    for variable in variable_labels:
+        df_train = create_dummies(df_train, variable)
+        df_test = create_dummies(df_test, variable)
+    return df_train, df_test
+
+train_clean, test_clean = apply_dummies(train_clean, test_clean, ['Workclass', 'Education', 'Marital.Status', 'Occupation', 'Race', 'Sex',
+                                        'Age_cat', 'Hours.Per.Week_cat'])
+
+
+
+
 
