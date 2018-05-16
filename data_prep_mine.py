@@ -351,63 +351,43 @@ all_y = train_clean['Income.Group']
 train_x, test_x, train_y, test_y = train_test_split(all_x, all_y, test_size=0.2, random_state=0)
 
 # modeling
-# Logistic Regression
 log_reg = LogisticRegression()
-log_reg.fit(train_x, train_y)
-acc_log_reg = round(log_reg.score(train_x, train_y)*100, 2)
-
-print(acc_log)
-print('Coefficient: \n', log_reg.coef_)
-print('Intercept: \n', log_reg.intercept_)
-y_pred = log_reg.predict(test_x)
-
-# Decision Tree
 dec_tree = DecisionTreeClassifier()
-dec_tree.fit(train_x, train_y)
-acc_dec_tree = round(dec_tree.score(train_x, train_y)*100, 2)
-
-# Support Vector Machine (SVM)
 svc = SVC()
-svc.fit(train_x, train_y)
-acc_svc = round(svc.score(train_x, train_y)*100, 2)
-
-# Linear SVC
 lin_svc = LinearSVC()
-lin_svc.fit(train_x, train_y)
-acc_lin_svc = round(lin_svc.score(train_x, train_y)*100, 2)
-
-# Naive Bayes
 gauss = GaussianNB()
-gauss.fit(train_x, train_y)
-acc_gauss = round(gauss.score(train_x, train_y)*100, 2)
-
-# kNN
 knn = KNeighborsClassifier(n_neighbors=3)
-knn.fit(train_x, train_y)
-acc_knn = round(knn.score(train_x, train_y)*100, 2)
-
-# Random Forest
 rand_forest = RandomForestClassifier(n_estimators=100)
-rand_forest.fit(train_x, train_y)
-acc_rand_forest = round(rand_forest.score(train_x, train_y)*100, 2)
-
-# Gradient Boosting Algorithms
 gbm = GradientBoostingClassifier(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0)
-gbm.fit(train_x, train_y)
-acc_gbm = round(gbm.score(train_x, train_y)*100, 2)
 
 # Cross-Validation
-names = ['Logistic Regression', 'Decision Tree', 'Support Vector Machine', 'Linear SVC', 'Naive Bayes', 'kNN',
-         'Random Forest', 'Gradient Boosting Algorithm']
-estimators = [log_reg, dec_tree, svc, lin_svc, gauss, knn, rand_forest, gbm]
-scores = [acc_log_reg, acc_dec_tree, acc_svc, acc_lin_svc, acc_gauss, acc_knn, acc_rand_forest, acc_gbm]
-models_summary = pd.DataFrame({'Name':names, 'Score':scores})
 
-test_list = []
-for est in estimators:
-    accuracy = cross_val_score(est, all_x, all_y, cv=10).mean()
-    test_list.append(accuracy)
-print(test_list)
+def get_cross_val_score_table(algo_dict):
+    """
+    Takes list of algorithms and their estimators and creates accuracy table
+    :param algo_dict: dictionary with algo names keys and algo estimator values
+    :return: data frame with standard and cross validation score for every algorithm
+    """
+    models_summary = pd.DataFrame(index= range(len(algo_dict)), columns=['name', 'score', 'cross_val_mean_score', 'std_dev'])
+    algo_names = list(algo_dict.keys())
+    algo_est = list(algo_dict.values())
+    for i in range(len(algo_dict)):
+        models_summary.loc[i]['name'] = algo_names[i]
+        est = algo_est[i]
+        est.fit(train_x, train_y)
+        models_summary.loc[i]['score'] = round(est.score(train_x, train_y) * 100, 2)
+        models_summary.loc[i]['cross_val_mean_score'] = cross_val_score(est, all_x, all_y, cv=10).mean()
+        models_summary.loc[i]['std_dev'] = cross_val_score(est, all_x, all_y, cv=10).std()
+        models_summary.sort_values(by='cross_val_mean_score', ascending=False, inplace=True)
+    return models_summary
 
-models_summary.loc[:, 'Accuracy'] = pd.Series(test_list, index=models_summary.index)
-models_summary.sort_values(by='Accuracy', ascending=False)
+algorithms = {'Logistic Regression': log_reg, 'Decision Tree': dec_tree, 'Support Vector Machine': svc,
+              'Linear SVC': lin_svc, 'Naive Bayes': gauss, 'kNN': knn, 'Random Forest': rand_forest,
+              'Gradient Boosting Algorithm': gbm}
+
+models_accuracy_table = get_cross_val_score_table(algorithms)
+
+# print coefficients for the best algorithm and predict
+print('Coefficient: \n', lin_svc.coef_)
+print('Intercept: \n', lin_svc.intercept_)
+y_pred = lin_svc.predict(test_x)

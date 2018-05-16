@@ -150,4 +150,4 @@ predict_test = model.predict(test[independent_variables])
 
 # evaluate accuracy
 acc_train = accuracy_score(train[dependent_variable], predict_train)
-
+accuracy = cross_val_score(model, train[independent_variables], train[dependent_variable], cv=10).mean()
