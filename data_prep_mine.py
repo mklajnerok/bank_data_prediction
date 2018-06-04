@@ -391,3 +391,22 @@ models_accuracy_table = get_cross_val_score_table(algorithms)
 print('Coefficient: \n', lin_svc.coef_)
 print('Intercept: \n', lin_svc.intercept_)
 y_pred = lin_svc.predict(test_x)
+
+coefficients = lin_svc.coef_
+coefficients = coefficients.tolist()
+flat_list = [item for sublist in coefficients for item in sublist]
+coefficients_dict = dict(zip(columns_for_modeling, flat_list))
+
+"""
+Most relevant features:
+- 'Age_cat_Young': 0.35
+- 'Education_degree': -0.36
+- 'Education_docs': -0.31
+- 'Education_primary': 0.48
+- 'Education_secondary': 0.43
+- 'Marital.Status_single': 0.49
+- 'Occupation_Other-service': 0.33
+- 'Workclass_no_pay': 0.43
+The highest probability to be below threshold is among young, single, 
+not specified occupation, education primary or secondary.
+"""
